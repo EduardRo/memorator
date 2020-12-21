@@ -1,13 +1,13 @@
 import React from 'react';
-import './Answers.css';
+import './menuButton.styles.scss';
 import Button from '@material-ui/core/Button';
 
-const Answer = (props) => {
+const MenuButton = (props) => {
   return (
     <Button className={'buton'} onClick={props.onClick}>
-      <img src={props.img} alt='answer' className='img' />
+      {props.denumireserie}
     </Button>
   );
 };
 
-export default Answer;
+export default MenuButton;
