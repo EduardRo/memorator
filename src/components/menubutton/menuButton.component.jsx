@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button';
 
 const MenuButton = (props) => {
   return (
-    <Button className={'buton'} onClick={props.onClick}>
+    <Button className={'buton'} onClick={() => props.onClick(props.codserie)}>
       {props.denumireserie}
     </Button>
   );

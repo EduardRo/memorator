@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import Grid from '@material-ui/core/Grid';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
-import Question from './components/questions/Question';
-import Answer from './components/answers/Answer';
-import './App.css';
+import Question from '../questions/Question';
+import Answer from '../answers/Answer';
+import Button from '@material-ui/core/Button';
+import './tests.styles.scss';
 
-export class App extends Component {
+export class Test extends Component {
   constructor(props) {
     super(props);
 
@@ -588,46 +589,129 @@ export class App extends Component {
       ],
 
       answer: [],
-      noQuestion: 1,
+      noQuestion: 0,
       img: [],
       theQuestion: '',
+      filteredQuestions: [],
+      start: true,
+      arrayVariants: [],
     };
-
+    // console.log(this.props.match.params.id);
     this.changeQuestion = this.changeQuestion.bind(this);
+    this.detFilteredQuestions = this.detFilteredQuestions.bind(this);
+    this.shuffleQuestions = this.shuffleQuestions.bind(this);
+    this.shuffleVariants = this.shuffleVariants.bind(this);
+    // console.log(this.props.match.params.id);
+  }
+
+  detFilteredQuestions(filter) {
+    console.log(filter);
+    console.log(this.state.filteredQuestions);
+  }
+
+  componentDidMount() {
+    let returnVariants = [];
+
+    const fQuestions = this.state.questions.filter(
+      (questions) => questions.codserie === this.props.match.params.id
+    );
+    //adaug elemente sa fie 10;
+    console.log(fQuestions);
+    const initialLength = fQuestions.length;
+    let prevPosition = 11;
+    let randomPosition = 12;
+    while (fQuestions.length < 10) {
+      do {
+        randomPosition = Math.floor(
+          Math.random() * Math.floor(fQuestions.length)
+        );
+        console.log('random position ' + randomPosition);
+      } while (randomPosition === prevPosition);
+      if (randomPosition < initialLength) {
+        fQuestions.push(fQuestions[randomPosition]);
+        prevPosition = randomPosition;
+      }
+    }
+
+    console.log(fQuestions);
+
+    this.shuffleQuestions(fQuestions);
+
+    fQuestions.map((variants) => {
+      returnVariants.push(
+        this.shuffleVariants([
+          variants.idtest,
+          variants.raspuns,
+          variants.var1,
+          variants.var2,
+          variants.var3,
+          variants.var4,
+        ])
+      );
+      return null;
+    });
+    console.log(returnVariants);
+    this.setState({ filteredQuestions: fQuestions });
+    this.setState({ start: false });
+
+    console.log(this.props.match.params.id);
+    console.log(this.state.filteredQuestions);
+  }
+
+  shuffleQuestions(array) {
+    // shuffle the array
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
   }
 
   changeQuestion() {
-    // https://www.matematicon.ro/m/mem/09/TR/M09TR08/V1M09TR0801.png
     this.setState({ noQuestion: this.state.noQuestion + 1 });
-    console.log(this.state.noQuestion);
-    console.log(this.state.questions[this.state.noQuestion]['var1']);
 
     const theQuestion =
       'https://www.matematicon.ro/m/mem/' +
-      this.state.questions[this.state.noQuestion]['path'] +
-      this.state.questions[this.state.noQuestion]['enunt'] +
+      this.state.filteredQuestions[this.state.noQuestion]['path'] +
+      this.state.filteredQuestions[this.state.noQuestion]['enunt'] +
       '.png';
     const img1 =
       'https://www.matematicon.ro/m/mem/' +
-      this.state.questions[this.state.noQuestion]['path'] +
-      this.state.questions[this.state.noQuestion]['var1'] +
+      this.state.filteredQuestions[this.state.noQuestion]['path'] +
+      this.state.filteredQuestions[this.state.noQuestion]['var1'] +
       '.png';
 
     const img2 =
       'https://www.matematicon.ro/m/mem/' +
-      this.state.questions[this.state.noQuestion]['path'] +
-      this.state.questions[this.state.noQuestion]['var2'] +
+      this.state.filteredQuestions[this.state.noQuestion]['path'] +
+      this.state.filteredQuestions[this.state.noQuestion]['var2'] +
       '.png';
     const img3 =
       'https://www.matematicon.ro/m/mem/' +
-      this.state.questions[this.state.noQuestion]['path'] +
-      this.state.questions[this.state.noQuestion]['var3'] +
+      this.state.filteredQuestions[this.state.noQuestion]['path'] +
+      this.state.filteredQuestions[this.state.noQuestion]['var3'] +
       '.png';
 
     this.setState({ img: [img1, img2, img3] });
     this.setState({ theQuestion: theQuestion });
-    console.log(this.state.theQuestion);
-    console.log(this.state.questions);
+    console.log(this.state.noQuestion);
+  }
+
+  shuffleVariants(arrVariants) {
+    const returnArray = [arrVariants[0], arrVariants[1]];
+
+    // returnArray.push(...arrVariants[1]);
+    // take an array of 4 elements, shuffle them and return an array of 2 elements
+    let randPosition1 = Math.floor(Math.random() * Math.floor(4));
+    let randPosition2 = Math.floor(Math.random() * Math.floor(4));
+    console.log(arrVariants[randPosition1]);
+    while (randPosition2 === randPosition1) {
+      randPosition2 = Math.floor(Math.random() * Math.floor(4));
+    }
+    returnArray.push(arrVariants[randPosition1 + 1]);
+    returnArray.push(arrVariants[randPosition2 + 1]);
+    console.log(returnArray);
+    return returnArray;
   }
 
   render() {
@@ -639,17 +723,28 @@ export class App extends Component {
         justify='center'
         alignItems='center'
       >
-        <Grid item xs={12} md={8} lg={6} className={'itemGrid'} fixed>
-          <ButtonGroup orientation='vertical' className={'buttonGroup'}>
-            <Question img={this.state.theQuestion} />
-            <Answer onClick={this.changeQuestion} img={this.state.img[0]} />
-            <Answer onClick={this.changeQuestion} img={this.state.img[1]} />
-            <Answer onClick={this.changeQuestion} img={this.state.img[2]} />
-          </ButtonGroup>
+        <Grid item xs={12} md={8} lg={6} className={'itemGrid'} fixed='true'>
+          {this.state.start ? (
+            <ButtonGroup orientation='vertical' className={'buttonGroup'}>
+              <Question img={this.state.theQuestion} />
+              <Answer onClick={this.changeQuestion} img={this.state.img[0]} />
+              <Answer onClick={this.changeQuestion} img={this.state.img[1]} />
+              <Answer onClick={this.changeQuestion} img={this.state.img[2]} />
+            </ButtonGroup>
+          ) : (
+            <Button
+              onClick={() => {
+                this.setState({ start: true });
+                this.changeQuestion();
+              }}
+            >
+              Start
+            </Button>
+          )}
         </Grid>
       </Grid>
     );
   }
 }
 
-export default App;
+export default Test;
